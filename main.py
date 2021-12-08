@@ -1,8 +1,6 @@
-from requests.sessions import session
 from sanic import Sanic
 from sanic.response import json
 import requests
-from datetime import datetime, timedelta
 
 # Storing key info
 homework_url = "https://www.classcharts.com/apipublic/homework/0"
@@ -20,10 +18,12 @@ def login(code, dob):
     headers = {
         "authorization": f"Basic {sessionId}"
     }
-    resp2 = session.get(f"https://www.classcharts.com/apiv2student/{studentId}", headers = headers)
+    resp2 = session.get(f"https://www.classcharts.com/apiv2student/homeworks/{studentId}?", headers = {
+      "authorization": f"Basic {sessionId}"
+    })
     homeworks = []
     jsonResponse2 = resp2.json()
-    print(jsonResponse2)
+    print(jsonResponse2["data"])
     if jsonResponse["success"] == 0:
         print("Error while logging in - Your date of birth or your login code is incorrect!")
         return(0, "ERROR - DOB OR CODE", jsonResponse, session)
@@ -51,4 +51,4 @@ def signin(request):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run("0.0.0.0")
