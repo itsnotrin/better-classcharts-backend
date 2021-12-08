@@ -6,8 +6,8 @@ import requests
 homework_url = "https://www.classcharts.com/apipublic/homework/0"
 login_url = "https://www.classcharts.com/apiv2student/login"
 
-# Login System: 
-def login(code, dob):
+# Homework System: 
+def homework(code, dob):
     headers = {"User-Agent": "Mozilla/5.0"}
     payload = {'code': code, 'dob':dob, 'remember_me': '1'}
     session = requests.Session()
@@ -21,35 +21,44 @@ def login(code, dob):
     resp2 = session.get(f"https://www.classcharts.com/apiv2student/homeworks/{studentId}?", headers = {
       "authorization": f"Basic {sessionId}"
     })
-    homeworks = []
+    homeworks = {}
     jsonResponse2 = resp2.json()
+    num = 0
     for i in jsonResponse2["data"]:
+        num+=1
         print(i)
-    # print(jsonResponse2["data"][0])
-    # print(f"\n\n\nClass: {jsonResponse2['data'][2]['lesson']}\nLesson: {jsonResponse2['data'][2]['subject']}")
+        data = {
+            num:{
+                "Class": i["lesson"],
+                "Subject": i["subject"],
+                "Title": i["title"],
+                "Description": i["description"],
+                "Done": i["status"]["ticked"]
+            }
+        }
+        homeworks.update(data)
     if jsonResponse["success"] == 0:
         print("Error while logging in - Your date of birth or your login code is incorrect!")
         return(0, "ERROR - DOB OR CODE", jsonResponse, session)
     else:
         name = jsonResponse["data"]["name"]
-        return(1, name, jsonResponse, session)
+        return(1, name, homeworks)
 
 
 
 app = Sanic("The backend for my BetterClasscharts Project!")
 
-@app.route("/login")
-def signin(request):
+@app.route("/homework")
+def HomeworkEndpoint(request):
     req = request.json
     code = req["code"]
     dob = req["dob"]
-    success, name, resp, session = login(code, dob)
+    success, name, homeworks = homework(code, dob)
     if success == 0:
         return json({ "success": 0, "message": "Your Date of birth or your login code is incorrect. Please try again!"})
 
     else:
-        student_id = resp["data"]["id"]
-        return json({})
+        return json({ "success": 1, "message": homeworks })
 
 
 
