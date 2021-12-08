@@ -23,8 +23,10 @@ def login(code, dob):
     })
     homeworks = []
     jsonResponse2 = resp2.json()
-    print(jsonResponse2["data"][0])
-    print(f"\n\n\nClass: {jsonResponse2['data'][2]['lesson']}\nLesson: {jsonResponse2['data'][2]['subject']}")
+    for i in jsonResponse2["data"]:
+        print(i)
+    # print(jsonResponse2["data"][0])
+    # print(f"\n\n\nClass: {jsonResponse2['data'][2]['lesson']}\nLesson: {jsonResponse2['data'][2]['subject']}")
     if jsonResponse["success"] == 0:
         print("Error while logging in - Your date of birth or your login code is incorrect!")
         return(0, "ERROR - DOB OR CODE", jsonResponse, session)
