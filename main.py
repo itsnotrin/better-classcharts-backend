@@ -26,7 +26,6 @@ def homework(code, dob):
     num = 0
     for i in jsonResponse2["data"]:
         num+=1
-        print(i)
         data = {
             num:{
                 "Class": i["lesson"],
