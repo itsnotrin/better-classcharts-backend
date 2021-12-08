@@ -7,7 +7,7 @@ homework_url = "https://www.classcharts.com/apipublic/homework/0"
 login_url = "https://www.classcharts.com/apiv2student/login"
 
 # Homework System: 
-def homework(code, dob):
+def GetHomework(code, dob):
     headers = {"User-Agent": "Mozilla/5.0"}
     payload = {'code': code, 'dob':dob, 'remember_me': '1'}
     session = requests.Session()
@@ -52,7 +52,7 @@ def HomeworkEndpoint(request):
     req = request.json
     code = req["code"]
     dob = req["dob"]
-    success, name, homeworks = homework(code, dob)
+    success, name, homeworks = GetHomework(code, dob)
     if success == 0:
         return json({ "success": 0, "message": "Your Date of birth or your login code is incorrect. Please try again!"})
 
