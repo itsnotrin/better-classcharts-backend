@@ -43,7 +43,33 @@ def GetHomework(code, dob):
         name = jsonResponse["data"]["name"]
         return(1, name, homeworks)
 
-
+# Behaviour System: 
+def GetBehaviour(code, dob):
+    headers = {"User-Agent": "Mozilla/5.0"}
+    payload = {'code': code, 'dob':dob, 'remember_me': '1'}
+    session = requests.Session()
+    resp = session.post(login_url, headers=headers, data=payload)
+    jsonResponse = resp.json()
+    studentId = jsonResponse["data"]["id"]
+    sessionId = jsonResponse["meta"]["session_id"]
+    headers = {
+        "authorization": f"Basic {sessionId}"
+    }
+    #https://www.classcharts.com/apiv2student/activity/5939358?from=2021-08-01&to=2021-12-09
+    resp2 = session.get(f"https://www.classcharts.com/apiv2student/activity/{studentId}?from=2021-08-01&to=2021-12-09", headers = {
+      "authorization": f"Basic {sessionId}"
+    })
+    homeworks = {}
+    jsonResponse2 = resp2.json()
+    # print(jsonResponse2)
+    for i in jsonResponse2["data"]:
+        print(i["polarity"])
+    if jsonResponse["success"] == 0:
+        print("Error while logging in - Your date of birth or your login code is incorrect!")
+        return(0, "ERROR - DOB OR CODE", jsonResponse, session)
+    else:
+        name = jsonResponse["data"]["name"]
+        return(1, name, homeworks)
 
 app = Sanic("The backend for my BetterClasscharts Project!")
 
@@ -59,6 +85,17 @@ def HomeworkEndpoint(request):
     else:
         return json({ "success": 1, "message": homeworks })
 
+@app.route("/behaviour")
+def BehaviourEndpoint(request):
+    req = request.json
+    code = req["code"]
+    dob = req["dob"]
+    success, name, ToSend = GetBehaviour(code, dob)
+    if success == 0:
+        return json({ "success": 0, "message": "Your Date of birth or your login code is incorrect. Please try again!"})
+
+    else:
+        return json({ "success": 1, "message": {} })
 
 
 if __name__ == '__main__':
