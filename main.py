@@ -98,13 +98,25 @@ def GetTimetable(code, dob):
       "authorization": f"Basic {sessionId}"
     })
     jsonResponse2 = resp2.json()
-    print(jsonResponse2["data"])
+    num = 0
+    lessons = {}
+    for i in jsonResponse2["data"]:
+      num+=1
+      data = {
+        int(num): {
+          "class": i["lesson_name"],
+          "subject_name": i["subject_name"],
+          "room": i["room_name"],
+          "teacher": i["teacher_name"]
+        }
+      }
+      lessons.update(data)
     if jsonResponse["success"] == 0:
         print("Error while logging in - Your date of birth or your login code is incorrect!")
         return(0, "ERROR - DOB OR CODE", jsonResponse, session)
     else:
         name = jsonResponse["data"]["name"]
-        return(1, name, jsonResponse2)
+        return(1, name, lessons)
 
 app = Sanic("The backend for my BetterClasscharts Project!")
 
@@ -146,14 +158,12 @@ def TimetableEndpoint(request):
       dob = req["dob"]
     except:
       return json({ "success": 0, "message": "Code or Date of Birth is missing." })
-    GetTimetable(code, dob)
-    return json({})
-    # success, name, points = GetBehaviour(code, dob)
-    # if success == 0:
-    #     return json({ "success": 0, "message": "Your Date of birth or your login code is incorrect. Please try again!"})
+    success, name, lessons = GetTimetable(code, dob)
+    if success == 0:
+        return json({ "success": 0, "message": "Your Date of birth or your login code is incorrect. Please try again!"})
 
-    # else:
-    #     return json({ "success": 1, "message": points })
+    else:
+        return json({ "success": 1, "message": lessons })
 
 if __name__ == '__main__':
     app.run("0.0.0.0")
