@@ -19,9 +19,7 @@ def GetHomework(code, dob):
     })
     homeworks = {}
     jsonResponse2 = resp2.json()
-    num = 0
-    for i in jsonResponse2["data"]:
-        num+=1
+    for num, i in enumerate(jsonResponse2["data"], start=1):
         data = {
             num:{
                 "Class": i["lesson"],
@@ -42,9 +40,9 @@ def GetHomework(code, dob):
 
 # Behaviour System: 
 def GetBehaviour(code, dob):
-    headers = {"User-Agent": "Mozilla/5.0"}
     payload = {'code': code, 'dob':dob, 'remember_me': '1'}
     session = requests.Session()
+    headers = {"User-Agent": "Mozilla/5.0"}
     resp = session.post(login_url, headers=headers, data=payload)
     jsonResponse = resp.json()
     studentId = jsonResponse["data"]["id"]
@@ -56,26 +54,21 @@ def GetBehaviour(code, dob):
     resp2 = session.get(f"https://www.classcharts.com/apiv2student/activity/{studentId}", headers = {
       "authorization": f"Basic {sessionId}"
     })
-    points = {}
     jsonResponse2 = resp2.json()
-    # print(jsonResponse2)
-    Count = 0
     PosCount = 0
     NegCount = 0
-    for i in jsonResponse2["data"]:
-      Count+=1
-      if i["polarity"] == "positive":
-        PosCount+=1
-      elif i["polarity"] == "positive":
-        NegCount+=1
-      data = {
-          int(Count): {
-            "type": i["polarity"],
-            "teacher": i["teacher_name"],
-            "note": i["note"]
-          }
-      }
-      points.update(data)
+    points = {}
+    for Count, i in enumerate(jsonResponse2["data"], start=1):
+        if i["polarity"] == "positive":
+            PosCount+=1
+        data = {
+            int(Count): {
+              "type": i["polarity"],
+              "teacher": i["teacher_name"],
+              "note": i["note"]
+            }
+        }
+        points.update(data)
     if jsonResponse["success"] == 0:
         print("Error while logging in - Your date of birth or your login code is incorrect!")
         return(0, "ERROR - DOB OR CODE", jsonResponse["data"], session)
@@ -87,9 +80,9 @@ def GetBehaviour(code, dob):
 
 # Timetable System: 
 def GetTimetable(code, dob):
-    headers = {"User-Agent": "Mozilla/5.0"}
     payload = {'code': code, 'dob':dob, 'remember_me': '1'}
     session = requests.Session()
+    headers = {"User-Agent": "Mozilla/5.0"}
     resp = session.post(login_url, headers=headers, data=payload)
     jsonResponse = resp.json()
     studentId = jsonResponse["data"]["id"]
@@ -98,19 +91,17 @@ def GetTimetable(code, dob):
       "authorization": f"Basic {sessionId}"
     })
     jsonResponse2 = resp2.json()
-    num = 0
     lessons = {}
-    for i in jsonResponse2["data"]:
-      num+=1
-      data = {
-        int(num): {
-          "class": i["lesson_name"],
-          "subject_name": i["subject_name"],
-          "room": i["room_name"],
-          "teacher": i["teacher_name"]
+    for num, i in enumerate(jsonResponse2["data"], start=1):
+        data = {
+          int(num): {
+            "class": i["lesson_name"],
+            "subject_name": i["subject_name"],
+            "room": i["room_name"],
+            "teacher": i["teacher_name"]
+          }
         }
-      }
-      lessons.update(data)
+        lessons.update(data)
     if jsonResponse["success"] == 0:
         print("Error while logging in - Your date of birth or your login code is incorrect!")
         return(0, "ERROR - DOB OR CODE", jsonResponse, session)
